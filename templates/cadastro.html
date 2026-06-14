@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-page">
+    <div class="card" style="width: 400px;">
+        <h3 style="text-align: center;">Criar Conta</h3>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+        
+        <form method="POST">
+            <div class="form-group">
+                <label>Nome Completo</label>
+                <input type="text" name="nome" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" name="senha" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Confirmar Senha</label>
+                <input type="password" name="confirmar_senha" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success">Cadastrar</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <span>Já tem conta? </span>
+            <a href="{{ url_for('login') }}" style="color: #3498db;">Faça Login</a>
+        </div>
+    </div>
+</body>
+</html>

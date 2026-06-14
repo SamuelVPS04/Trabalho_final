@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Página Inicial - Notícias</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <h2>Sistema de Notícias</h2>
+        <div>
+            <a href="{{ url_for('login') }}" class="btn-sair">Login</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 style="margin-bottom: 30px;">Últimas Notícias</h1>
+        
+        <div class="noticias-grid">
+            {% for noticia in noticias %}
+            <div class="card">
+                {% if noticia.imagem %}
+                <img src="{{ noticia.imagem }}" alt="{{ noticia.titulo }}" class="noticia-imagem">
+                {% endif %}
+                <h3>{{ noticia.titulo }}</h3>
+                <small class="text-muted">{{ noticia.data_noticia.strftime('%d/%m/%Y %H:%M') }}</small>
+                <p>{{ noticia.texto[:200] }}{% if noticia.texto|length > 200 %}...{% endif %}</p>
+            </div>
+            {% else %}
+            <div class="card">
+                <p class="text-muted" style="text-align: center;">Nenhuma notícia disponível no momento.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <style>
+        .noticias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .noticia-imagem {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <h2>Painel Administrativo</h2>
+        <div>
+            <span>Olá, {{ current_user.nome }} | </span>
+            <a href="{{ url_for('logout') }}" class="btn-sair">Sair</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <!-- Formulário de Gerenciar Usuários -->
+        <div class="flex-container">
+            <div class="col-4">
+                <div class="card">
+                    <h3>Gerenciar Usuário</h3>
+                    <form action="{{ url_for('admin_criar_usuario') }}" method="POST">
+                        <div class="form-group">
+                            <label>Nome</label>
+                            <input type="text" name="nome" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Senha</label>
+                            <input type="password" name="senha" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select name="tipo" class="form-select">
+                                <option value="comum">Comum</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success">Salvar Usuário</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-8">
+                <div class="card">
+                    <h3>Usuários Cadastrados</h3>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>E-mail</th>
+                                    <th>Tipo</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in usuarios %}
+                                <tr>
+                                    <td>{{ user.nome }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        {% if user.tipo == 'admin' %}
+                                            <span class="badge badge-admin">admin</span>
+                                        {% else %}
+                                            <span class="badge badge-comum">comum</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if user.ativo %}
+                                            <span class="badge badge-ativo">Ativo</span>
+                                        {% else %}
+                                            <span class="badge badge-inativo">Desativado</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="acoes-flex">
+                                        <button type="button" class="btn btn-warning" onclick="editarUsuario('{{ user.id }}')">Editar</button>
+                                        <form action="{{ url_for('admin_toggle_usuario', user_id=user.id) }}" method="POST" style="display: inline;">
+                                            {% if user.ativo %}
+                                                <button type="submit" class="btn btn-danger">Desativar</button>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-success">Ativar</button>
+                                            {% endif %}
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Notícias -->
+        <div class="card" style="margin-top: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3>Notícias</h3>
+                <a href="{{ url_for('admin_criar_noticia') }}" class="btn btn-success" style="width: auto;">+ Nova Notícia</a>
+            </div>
+            
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for noticia in noticias %}
+                        <tr>
+                            <td>{{ noticia.titulo }}</td>
+                            <td>{{ noticia.data_noticia.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>
+                                {% if noticia.ativo %}
+                                    <span class="badge badge-ativo">Ativa</span>
+                                {% else %}
+                                    <span class="badge badge-inativo">Desativada</span>
+                                {% endif %}
+                            </td>
+                            <td class="acoes-flex">
+                                <a href="{{ url_for('admin_editar_noticia', id=noticia.id) }}" class="btn btn-warning" style="width: auto; text-decoration: none;">Editar</a>
+                                <form action="{{ url_for('admin_toggle_noticia', id=noticia.id) }}" method="POST" style="display: inline;">
+                                    {% if noticia.ativo %}
+                                        <button type="submit" class="btn btn-danger">Desativar</button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-success">Ativar</button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align: center;">Nenhuma notícia cadastrada ainda.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal/Formulário de Edição -->
+    <div id="edit-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="card" style="width: 500px; max-width: 90%;">
+            <h3>Editar Usuário</h3>
+            <div id="edit-form-content"></div>
+            <button type="button" class="btn btn-secondary" onclick="fecharEdicao()" style="margin-top: 10px;">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        function editarUsuario(id) {
+            fetch('/admin/usuario/' + id)
+                .then(response => response.json())
+                .then(data => {
+                    const formHtml = `
+                        <form action="/admin/usuario/editar/${id}" method="POST">
+                            <div class="form-group">
+                                <label>Nome</label>
+                                <input type="text" name="nome" class="form-control" value="${data.nome}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>E-mail</label>
+                                <input type="email" name="email" class="form-control" value="${data.email}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Senha (deixe em branco para manter)</label>
+                                <input type="password" name="senha" class="form-control" placeholder="Nova senha">
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo</label>
+                                <select name="tipo" class="form-select">
+                                    <option value="comum" ${data.tipo === 'comum' ? 'selected' : ''}>Comum</option>
+                                    <option value="admin" ${data.tipo === 'admin' ? 'selected' : ''}>Administrador</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                        </form>
+                    `;
+                    document.getElementById('edit-form-content').innerHTML = formHtml;
+                    document.getElementById('edit-modal').style.display = 'flex';
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao carregar dados do usuário');
+                });
+        }
+        
+        function fecharEdicao() {
+            document.getElementById('edit-modal').style.display = 'none';
+            document.getElementById('edit-form-content').innerHTML = '';
+        }
+
+        // Fechar modal clicando fora
+        document.getElementById('edit-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharEdicao();
+            }
+        });
+    </script>
+</body>
+</html>

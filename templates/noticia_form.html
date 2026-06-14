@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if noticia %}Editar{% else %}Nova{% endif %} Notícia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <h2>{% if noticia %}Editar{% else %}Nova{% endif %} Notícia</h2>
+        <div>
+            <a href="{{ url_for('admin_painel') }}" class="btn-sair">Voltar</a>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 800px; margin-top: 50px;">
+        <div class="card">
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Título da Notícia</label>
+                    <input type="text" name="titulo" class="form-control" value="{{ noticia.titulo if noticia else '' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Conteúdo da Notícia</label>
+                    <textarea name="texto" class="form-control" rows="8" required>{{ noticia.texto if noticia else '' }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Imagem (JPG, PNG, GIF)</label>
+                    <input type="file" name="imagem" class="form-control" accept="image/*">
+                    {% if noticia and noticia.imagem %}
+                        <p class="text-muted" style="margin-top: 10px;">Imagem atual: {{ noticia.imagem }}</p>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn btn-primary">{% if noticia %}Atualizar{% else %}Publicar{% endif %} Notícia</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
