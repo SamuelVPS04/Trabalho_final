@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, abort
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -10,9 +10,12 @@ load_dotenv()
 
 from models import db, User, Noticia
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+default_db_path = os.path.join(basedir, 'sistema.db')
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///sistema.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', f'sqlite:///{default_db_path}')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Configuração de upload
@@ -124,8 +127,6 @@ def logout():
 @app.route('/perfil')
 @login_required
 def usuario_perfil():
-    if current_user.is_admin():
-        return redirect(url_for('admin_painel'))
     return render_template('usuarios.html', user=current_user)
 
 @app.route('/perfil/editar', methods=['POST'])
@@ -143,6 +144,14 @@ def editar_perfil():
     return redirect(url_for('usuario_perfil'))
 
 # ==================== ADMINISTRADOR ====================
+
+@app.route('/noticia/<int:noticia_id>')
+def noticia_detalhe(noticia_id):
+    noticia = Noticia.query.get_or_404(noticia_id)
+    if not noticia.ativo and (not current_user.is_authenticated or not current_user.is_admin()):
+        abort(404)
+    return render_template('noticia_detail.html', noticia=noticia)
+
 
 @app.route('/admin')
 @login_required

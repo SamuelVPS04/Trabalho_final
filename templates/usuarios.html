@@ -9,7 +9,11 @@
     <nav class="navbar comum">
         <h2>Área do Usuário</h2>
         <div>
-            <a href="{{ url_for('logout') }}" class="btn-sair">Sair</a>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Notícias</a>
+            {% if current_user.is_admin() %}
+                <a href="{{ url_for('admin_painel') }}" class="btn btn-secondary">Painel Admin</a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}" class="btn btn-danger">Sair</a>
         </div>
     </nav>
 

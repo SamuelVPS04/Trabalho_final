@@ -9,8 +9,10 @@
     <nav class="navbar">
         <h2>Painel Administrativo</h2>
         <div>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Notícias</a>
+            <a href="{{ url_for('usuario_perfil') }}" class="btn btn-secondary">Conta</a>
             <span>Olá, {{ current_user.nome }} | </span>
-            <a href="{{ url_for('logout') }}" class="btn-sair">Sair</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger">Sair</a>
         </div>
     </nav>
 

@@ -9,7 +9,8 @@
     <nav class="navbar">
         <h2>{% if noticia %}Editar{% else %}Nova{% endif %} Notícia</h2>
         <div>
-            <a href="{{ url_for('admin_painel') }}" class="btn-sair">Voltar</a>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Notícias</a>
+            <a href="{{ url_for('admin_painel') }}" class="btn btn-secondary">Painel Admin</a>
         </div>
     </nav>
 
