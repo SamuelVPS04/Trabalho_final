@@ -46,19 +46,3 @@ O servidor será iniciado em `http://127.0.0.1:5000`.
 ```bash
 pytest
 ```
-
-Isso roda os testes de login, controle de acesso e fluxo funcional.
-
-## Resultados obtidos
-
-- Autenticação com email/senha e hash seguro.
-- Controle de acesso para área administrativa.
-- CRUD de usuários com desativação de contas.
-- CRUD de notícias com marcação de ativo/inativo.
-- Testes automatizados com Pytest para login, autorização e fluxo de notícia.
-
-## Dificuldades encontradas
-
-- Ajustar o ambiente para suportar teste end-to-end com navegador no container.
-- Garantir que as rotas de administração bloqueiem corretamente usuários comuns e não autenticados.
-- Manter o upload de imagens seguro e com nome de arquivo único.
